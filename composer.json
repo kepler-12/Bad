@@ -1,0 +1,22 @@
+{
+    "name": "kepler12/bad",
+    "description": "A Breadth and Depth Search.",
+    "keywords": ["Depth First"],
+    "license": "DBAD",
+    "authors": [
+        {
+            "name": "Tyler Smith",
+            "email": "ts@kepler12.com"
+        }
+    ],
+    "type": "project",
+    "require": {
+		"php": ">=5.4"
+    },
+	"require-dev": {
+		"phpunit/phpunit": "5.2.*"
+    },
+	"autoload": {
+        "psr-4": {"Kepler12\\Bad\\": "src/"}
+    }
+}
