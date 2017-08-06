@@ -53,7 +53,7 @@ class Search{
     * @param class $options overwrite defaults
     * @return Results $results
     */
-   public function run($data, $options)
+   public function run($data, $options = [])
    {
 
         $min_rules = $options['min_rules'] ?? $this->min_rules;
