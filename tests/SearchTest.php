@@ -28,27 +28,26 @@ class SearchTest extends TestCase
   *
   */
   public function test_odds(){
-    $search = new Search(
-      OddsOnly::class,
-      [
-        RemoveFives::class,
-        AboveTen::class
-      ]
-    );
+
 
     $array = [5,5,6,5, 6, 11];
-    $resultFalse = $search->run($array);
-    var_dump($resultFalse);
+    $resultFalse = OddsOnlySearch::run($array);
+
     $this->assertTrue($resultFalse->success === true);
-    $this->assertTrue($resultFalse->variations === 3);
+    $this->assertTrue($resultFalse->variations === 1, "Variations");
 
-    $resultTrue = $search->run([5, 7, 11, 13, 21]);
-
-    var_dump($resultTrue);
+    $resultTrue = OddsOnlySearch::run([5, 7, 11, 13, 21]);
 
     $this->assertTrue($resultTrue->success === true, "Success");
     $this->assertTrue($resultTrue->variations === 1, "Variations");
     $this->assertTrue($resultTrue->combined === [2 => 11,3 => 13,4 => 21], "Results");
+  }
+
+  public function test_cache()
+  {
+    $result = AlwaysFail::run([false]);
+    var_dump('VARIATIONS: ', $result->variations);
+    $this->assertTrue($result->variations === 15, "Correct Variations");
   }
 
 }

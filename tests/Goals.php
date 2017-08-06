@@ -13,8 +13,8 @@ class OddsOnly extends Goal {
             }
         }
 
-        var_dump("GOAL_RESULT: ", $result);
-        var_dump("COMBINDED: ", $combinded);
+        // var_dump("GOAL_RESULT: ", $result);
+        // var_dump("COMBINDED: ", $combinded);
 
         $success = true;
         if (count($combinded) == 0 || count($result->rules) == 0){
@@ -33,6 +33,14 @@ class OddsOnly extends Goal {
         $result->combined = $combinded;
         $result->success = $success;
 
+        return $result;
+    }
+}
+
+class NeverTrue extends Goal {
+    public static function validate(Result $result)
+    {
+        var_dump(implode("", $result->rules));
         return $result;
     }
 }

@@ -10,13 +10,14 @@ namespace Kepler12\Bad;
 *
 *  @author yourname
 */
-class Search {
+class Search{
 
    /**  @var Gaol $goal the class Goal to be met */
-   public static $goal;
+   private $goal;
 
    /**  @var array $rules an array of class Rules */
-   public static $rules;
+   private $rules;
+
     /**
     * Options here.
     *
@@ -24,10 +25,10 @@ class Search {
     */
 
     /**  @var boolean $depth_first run depth before breadth*/
-   public static $depth_first = true;
+   public $depth_first = true;
 
    /**  @var integer $min_rules the minimum number of rules that must be run*/
-   public static $min_rules = 1;
+   public $min_rules = 1;
 
 
   /**
@@ -39,7 +40,10 @@ class Search {
   *
   * @return string
   */
-
+   public function __construct($goal, $rules){
+        $this->goal = $goal;
+        $this->rules = $rules;
+   }
     /**
     *  Run
     *
@@ -49,41 +53,34 @@ class Search {
     * @param class $options overwrite defaults
     * @return Results $results
     */
-   public static function run($data, $options = [])
+   public function run($data, $options)
    {
-        $min_rules = $options['min_rules'] ?? get_called_class()::$min_rules;
-        $depth_first = $options['depth_first'] ?? get_called_class()::$depth_first;
 
-        $results = self::collect_results(get_called_class()::$rules, $data);
+        $min_rules = $options['min_rules'] ?? $this->min_rules;
+        $depth_first = $options['depth_first'] ?? $this->depth_first;
+
+        $results = self::collect_results($this->rules, $data);
 
         /* Set up the queue */
-        $searchRules = [get_called_class()::$rules];
+        $searchRules = [$this->rules];
         $searchResults = [$results];
 
         $variations = 0;
         $goalResult = false;
-
-        /* For Caching */
-        $cachedOrders = [];
-
         /*
         * We act always act on the first item in the queue
         */
         while(count($searchResults) > 0)
         {
-            if (! in_array(implode('', $searchRules[0]), $cachedOrders)) {
-                $variations++;
-                /* Validate the first item on the   queue */
-                $goalResult = get_called_class()::$goal::validate(new Result($searchRules[0], $searchResults[0], $data));
+            $variations++;
+            /* Validate the first item on the   queue */
+            $goalResult = $this->goal::validate(new Result($searchRules[0], $searchResults[0], $data));
 
-                if ($goalResult->success === true) {
-                    $goalResult->variations = $variations;
-                    break;
-                }
-
-                /* Add this rule order to the cache */
-                array_push($cachedOrders, implode('', $searchRules[0]));
+            if ($goalResult->success === true) {
+                $goalResult->variations = $variations;
+                break;
             }
+
             /* Set the results to work on */
             $shortenResult = $searchResults[0];
             $shortenRules = $searchRules[0];
@@ -94,11 +91,7 @@ class Search {
 
             if (count($shortenResult) > $min_rules) {
                 /* Add One less rule To the queue
-                * ie if you've run [A,B,C]
-                * breadth queues [A, B], [A, C], & [B, C] in that order
-                * depth queues [B, C], [A, C], [A, B]
-                * TODO: Do we want to have breadth and depth que in the same order.
-                * TODO: ADD CACHING!!!!!!
+                * ie if you've run [A,B,C] it will add [A, B], [A, C], & [B, C] in that order
                 */
                 for ($index = count($shortenResult) - 1; $index >= 0;  $index--) {
                     /* Copy the reults to a new array */
@@ -112,8 +105,8 @@ class Search {
                     /* Push/unshift to the queue */
                     if ($depth_first) {
                         //Depth first always shifts new items to the start of the queue
-                        array_unshift($searchResults, $newResults);
-                        array_unshift($searchRules, $newRules);
+                        array_unshif($searchResults, $newResults);
+                        array_unshif($searchRules, $newhRules);
                     } else {
                         //Breadth always pushes items to the end of the queue
                         array_push($searchResults, $newResults);
@@ -153,5 +146,5 @@ class Search {
         }
         return $results;
    }
-
 }
+

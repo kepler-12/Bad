@@ -26,3 +26,33 @@ class AboveTen extends Rule {
         return $result;
     }
 }
+
+class A extends Rule {
+
+    public static function run ($data)
+    {
+        return $data;
+    }
+}
+
+class B extends Rule {
+
+    public static function run ($data)
+    {
+        return $data;
+    }
+}
+class C extends Rule {
+
+    public static function run ($data)
+    {
+        return $data;
+    }
+}
+class D extends Rule {
+
+    public static function run ($data)
+    {
+        return $data;
+    }
+}
