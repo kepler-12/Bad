@@ -10,14 +10,13 @@ namespace Kepler12\Bad;
 *
 *  @author yourname
 */
-class Search{
+class Search {
 
    /**  @var Gaol $goal the class Goal to be met */
-   private $goal;
+   public static $goal;
 
    /**  @var array $rules an array of class Rules */
-   private $rules;
-
+   public static $rules;
     /**
     * Options here.
     *
@@ -25,10 +24,10 @@ class Search{
     */
 
     /**  @var boolean $depth_first run depth before breadth*/
-   public $depth_first = true;
+   public static $depth_first = true;
 
    /**  @var integer $min_rules the minimum number of rules that must be run*/
-   public $min_rules = 1;
+   public static $min_rules = 1;
 
 
   /**
@@ -40,10 +39,7 @@ class Search{
   *
   * @return string
   */
-   public function __construct($goal = false, $rules = false){
-        $this->goal = $goal ?? $this->goal;
-        $this->rules = $rules ?? $this->rules;
-   }
+
     /**
     *  Run
     *
@@ -53,16 +49,15 @@ class Search{
     * @param class $options overwrite defaults
     * @return Results $results
     */
-   public function run($data, $options = [])
+   public static function run($data, $options = [])
    {
+        $min_rules = $options['min_rules'] ?? get_called_class()::$min_rules;
+        $depth_first = $options['depth_first'] ?? get_called_class()::$depth_first;
 
-        $min_rules = $options['min_rules'] ?? $this->min_rules;
-        $depth_first = $options['depth_first'] ?? $this->depth_first;
-
-        $results = self::collect_results($this->rules, $data);
+        $results = self::collect_results(get_called_class()::$rules, $data);
 
         /* Set up the queue */
-        $searchRules = [$this->rules];
+        $searchRules = [get_called_class()::$rules];
         $searchResults = [$results];
 
         $variations = 0;
@@ -74,7 +69,7 @@ class Search{
         {
             $variations++;
             /* Validate the first item on the   queue */
-            $goalResult = $this->goal::validate(new Result($searchRules[0], $searchResults[0], $data));
+            $goalResult = get_called_class()::$goal::validate(new Result($searchRules[0], $searchResults[0], $data));
 
             if ($goalResult->success === true) {
                 $goalResult->variations = $variations;
@@ -146,4 +141,5 @@ class Search{
         }
         return $results;
    }
+
 }
