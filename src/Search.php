@@ -3,7 +3,7 @@
 namespace Kepler12\Bad;
 
 /**
-*  A sample class
+*  Search
 *
 *  Use this section to define what this class is doing, the PHPDocumentator will use this
 *  to automatically generate an API documentation using this information.
@@ -18,58 +18,64 @@ class Search{
    /**  @var array $rules an array of class Rules */
    private $rules;
 
-   /**  @var boolean $depth_first run depth before breadth*/
-   public $depth_first;
+    /**
+    * Options here.
+    *
+    *
+    */
 
-    /**  @var Result $result the result of the search*/
-   public $result;
+    /**  @var boolean $depth_first run depth before breadth*/
+   public $depth_first = true;
 
-   /**  @var mixed $data An array of data to be acted upon*/
-   public $data;
+   /**  @var integer $min_rules the minimum number of rules that must be run*/
+   public $min_rules = 1;
+
 
   /**
-  * Sample method
+  * Constructor
   *
-  * Always create a corresponding docblock for each method, describing what it is for,
-  * this helps the phpdocumentator to properly generator the documentation
   *
-  * @param string $param1 A string containing the parameter, do this for each parameter to the function, make sure to make it descriptive
+  * @param Goal $goal the goal which is trying to be achived by this search
+  * @param array $rules an array of rule classes
   *
   * @return string
   */
-   public function __construct($goal, $rules){
-        $this->goal = $goal;
-        $this->rules = $rules;
+   public function __construct($goal = false, $rules = false){
+        $this->goal = $goal ?? $this->goal;
+        $this->rules = $rules ?? $this->rules;
    }
     /**
-    * Sample method
+    *  Run
     *
-    * Always create a corresponding docblock for each method, describing what it is for,
-    * this helps the phpdocumentator to properly generator the documentation
+    * Run the search with the provided data.
     *
-    * @param class $goal A refrence to a goal
-    * @param class $rules A refrence to a rules
     * @param class $data A refrence to data
-    *
-    * @return string
+    * @param class $options overwrite defaults
+    * @return Results $results
     */
-   public function run($data, $depth_first = false)
+   public function run($data, $options)
    {
+
+        $min_rules = $options['min_rules'] ?? $this->min_rules;
+        $depth_first = $options['depth_first'] ?? $this->depth_first;
+
         $results = self::collect_results($this->rules, $data);
 
+        /* Set up the queue */
         $searchRules = [$this->rules];
         $searchResults = [$results];
 
         $variations = 0;
         $goalResult = false;
+        /*
+        * We act always act on the first item in the queue
+        */
         while(count($searchResults) > 0)
         {
             $variations++;
-            // var_dump('STARTING: ', $variations, $searchRules[0]);
-
             /* Validate the first item on the   queue */
             $goalResult = $this->goal::validate(new Result($searchRules[0], $searchResults[0], $data));
-            // var_dump("GOAL RESULT", $goalResult);
+
             if ($goalResult->success === true) {
                 $goalResult->variations = $variations;
                 break;
@@ -78,14 +84,15 @@ class Search{
             /* Set the results to work on */
             $shortenResult = $searchResults[0];
             $shortenRules = $searchRules[0];
-            // var_dump("SHORTEN RULES: ", $shortenRules);
+
             /* Remove items from the queue */
             array_shift($searchResults);
             array_shift($searchRules);
-            // var_dump('Shorten Results', $shortenResult);
 
-            if (count($shortenResult) > 1) {
-                /* Add To the queue */
+            if (count($shortenResult) > $min_rules) {
+                /* Add One less rule To the queue
+                * ie if you've run [A,B,C] it will add [A, B], [A, C], & [B, C] in that order
+                */
                 for ($index = count($shortenResult) - 1; $index >= 0;  $index--) {
                     /* Copy the reults to a new array */
                     $newResults = $shortenResult;
@@ -94,14 +101,14 @@ class Search{
                     /* Remove one of the results and rules from this queue */
                     array_splice($newResults, $index, 1);
                     array_splice($newRules, $index, 1);
-                    // var_dump("NEW RULES AFTER: ", $newRules);
-                    // var_dump("SHORTEN RULES AFTER: ",$index, $shortenRules);
 
                     /* Push/unshift to the queue */
                     if ($depth_first) {
+                        //Depth first always shifts new items to the start of the queue
                         array_unshif($searchResults, $newResults);
                         array_unshif($searchRules, $newhRules);
                     } else {
+                        //Breadth always pushes items to the end of the queue
                         array_push($searchResults, $newResults);
                         array_push($searchRules, $newRules);
                     }
@@ -120,7 +127,15 @@ class Search{
         $failed->success = false;
         return $failed;
    }
-
+    /**
+    *  collect_results
+    *
+    * Returns an array of results for each rule
+    *
+    * @param array $rules a group of rules to pass on the data
+    * @param mixed $data
+    * @return array
+    */
    public static function collect_results($rules, $data)
    {
         $results = [];
