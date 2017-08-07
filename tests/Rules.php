@@ -56,3 +56,18 @@ class D extends Rule {
         return $data;
     }
 }
+
+class ReturnTrue extends Rule {
+
+    public static function run ($data)
+    {
+        return true;
+    }
+}
+class ReturnFalse extends Rule {
+
+    public static function run ($data)
+    {
+        return false;
+    }
+}

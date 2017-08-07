@@ -45,9 +45,27 @@ class SearchTest extends TestCase
 
   public function test_cache()
   {
-    $result = AlwaysFail::run([false]);
+    $result = AlwaysFail::run([false], [
+      "depth_first" => true
+    ]);
     var_dump('VARIATIONS: ', $result->variations);
     $this->assertTrue($result->variations === 15, "Correct Variations");
   }
 
+  public function test_depth()
+  {
+    $result = TrueFirst::run([false], [
+      "depth_first" => true
+    ]);
+    $this->assertTrue($result->variations === 7, "Correct Variations");
+
+  }
+
+  public function test_breadth()
+  {
+    $result = TrueFirst::run([false], [
+      "depth_first" => false
+    ]);
+    $this->assertTrue($result->variations === 6, "Correct Variations");
+  }
 }

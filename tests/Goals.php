@@ -45,3 +45,13 @@ class NeverTrue extends Goal {
     }
 }
 
+class AllTrue extends Goal {
+    public static function validate(\Kepler12\Bad\Result $results)
+    {
+        var_dump(implode("", $results->rules));
+         $results->success = in_array(false, $results->results, true) === false;
+      //  $results->success = true;
+        return $results;
+    }
+}
+

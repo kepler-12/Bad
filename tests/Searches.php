@@ -18,3 +18,13 @@ class AlwaysFail extends Search {
         D::class
       ];
 }
+
+class TrueFirst extends Search {
+    public static $goal = AllTrue::class;
+    public static $rules = [
+        ReturnTrue::class,
+        ReturnFalse::class,
+        ReturnFalse::class,
+        ReturnFalse::class
+      ];
+}
